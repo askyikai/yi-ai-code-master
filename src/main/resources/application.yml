@@ -1,10 +1,15 @@
 spring:
   application:
     name: yi-ai-code-master
+  profiles:
+    active: prod
 server:
   port: 8123
   servlet:
     context-path: /api
+mybatis-flex:
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
 # springdoc-openapi
 springdoc:
   group-configs:
