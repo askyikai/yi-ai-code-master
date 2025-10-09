@@ -15,9 +15,27 @@ import java.util.List;
  */
 public interface AppService extends IService<App> {
 
+    /**
+     * 获取应用视图对象
+     *
+     * @param app 应用
+     * @return 应用视图对象
+     */
     AppVO getAppVO(App app);
 
+    /**
+     * 获取查询包装类
+     *
+     * @param appQueryRequest 查询参数
+     * @return 查询包装类
+     */
     QueryWrapper getQueryWrapper(AppQueryRequest appQueryRequest);
 
+    /**
+     * 获取应用视图对象列表
+     *
+     * @param appList 应用列表
+     * @return 应用视图对象列表
+     */
     List<AppVO> getAppVOList(List<App> appList);
 }
