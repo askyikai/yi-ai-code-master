@@ -21,10 +21,7 @@ import top.deepdog.yiaicodemaster.constant.UserConstant;
 import top.deepdog.yiaicodemaster.exception.BusinessException;
 import top.deepdog.yiaicodemaster.exception.ErrorCode;
 import top.deepdog.yiaicodemaster.exception.ThrowUtils;
-import top.deepdog.yiaicodemaster.model.dto.app.AppAddRequest;
-import top.deepdog.yiaicodemaster.model.dto.app.AppAdminUpdateRequest;
-import top.deepdog.yiaicodemaster.model.dto.app.AppQueryRequest;
-import top.deepdog.yiaicodemaster.model.dto.app.AppUpdateRequest;
+import top.deepdog.yiaicodemaster.model.dto.app.*;
 import top.deepdog.yiaicodemaster.model.entity.App;
 import top.deepdog.yiaicodemaster.model.entity.User;
 import top.deepdog.yiaicodemaster.model.enums.CodeGenTypeEnum;
@@ -88,6 +85,23 @@ public class AppController {
                                         .build()
                         )
                 );
+    }
+
+    /**
+     * 部署应用
+     *
+     * @param appDeployRequest 应用部署请求
+     * @param request 请求
+     * @return 应用部署URL
+     */
+    @PostMapping("/deploy")
+    public BaseResponse<String> deployApp(@RequestBody AppDeployRequest appDeployRequest, HttpServletRequest request) {
+        ThrowUtils.throwIf(appDeployRequest == null, ErrorCode.PARAMS_ERROR);
+        Long appId = appDeployRequest.getAppId();
+        ThrowUtils.throwIf(appId == null || appId <= 0, ErrorCode.PARAMS_ERROR, "应用ID无效");
+        User loginUser = userService.getLoginUser(request);
+        String deployUrl = appService.deployApp(appId, loginUser);
+        return ResultUtils.success(deployUrl);
     }
 
     /**
