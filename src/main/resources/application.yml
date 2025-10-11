@@ -3,20 +3,4 @@ spring:
     name: yi-ai-code-master
   profiles:
     active: prod
-server:
-  port: 8123
-  servlet:
-    context-path: /api
-mybatis-flex:
-  configuration:
-    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
-# springdoc-openapi
-springdoc:
-  group-configs:
-    - group: 'default'
-      packages-to-scan: top.deepdog.yiaicodemaster.controller
-# knife4j
-knife4j:
-  enable: true
-  setting:
-    language: zh_cn
+
