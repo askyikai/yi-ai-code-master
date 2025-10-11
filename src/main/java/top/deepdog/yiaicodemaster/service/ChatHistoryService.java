@@ -3,6 +3,7 @@ package top.deepdog.yiaicodemaster.service;
 import com.mybatisflex.core.paginate.Page;
 import com.mybatisflex.core.query.QueryWrapper;
 import com.mybatisflex.core.service.IService;
+import dev.langchain4j.memory.chat.MessageWindowChatMemory;
 import top.deepdog.yiaicodemaster.model.dto.chathistory.ChatHistoryQueryRequest;
 import top.deepdog.yiaicodemaster.model.entity.ChatHistory;
 import top.deepdog.yiaicodemaster.model.entity.User;
@@ -54,4 +55,13 @@ public interface ChatHistoryService extends IService<ChatHistory> {
      */
     public boolean deleteByAppId(Long appId);
 
+    /**
+     * 加载指定应用的对话历史到内存中
+     *
+     * @param appId 应用ID
+     * @param chatMemory 聊天内存
+     * @param maxCount 最大数量
+     * @return 加载的条数
+     */
+    int loadChatHistoryToMemory(long appId, MessageWindowChatMemory chatMemory, int maxCount);
 }

@@ -1,10 +1,16 @@
 package top.deepdog.yiaicodemaster.service.impl;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
 import com.mybatisflex.core.paginate.Page;
 import com.mybatisflex.core.query.QueryWrapper;
 import com.mybatisflex.spring.service.impl.ServiceImpl;
+
+import dev.langchain4j.data.message.AiMessage;
+import dev.langchain4j.data.message.UserMessage;
+import dev.langchain4j.memory.chat.MessageWindowChatMemory;
 import jakarta.annotation.Resource;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Lazy;
 import top.deepdog.yiaicodemaster.exception.ErrorCode;
 import top.deepdog.yiaicodemaster.exception.ThrowUtils;
@@ -20,12 +26,14 @@ import top.deepdog.yiaicodemaster.service.ChatHistoryService;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * 对话历史 服务层实现。
  *
  * @author <a href="https://github.com/askyikai">程序员oi</a>
  */
+@Slf4j
 @Service
 public class ChatHistoryServiceImpl extends ServiceImpl<ChatHistoryMapper, ChatHistory>  implements ChatHistoryService{
 
@@ -116,6 +124,42 @@ public class ChatHistoryServiceImpl extends ServiceImpl<ChatHistoryMapper, ChatH
     public boolean deleteByAppId(Long appId) {
         ThrowUtils.throwIf(appId == null || appId <= 0, ErrorCode.PARAMS_ERROR, "应用ID无效");
         return this.remove(QueryWrapper.create().eq("appId", appId));
+    }
+
+    @Override
+    public int loadChatHistoryToMemory(long appId, MessageWindowChatMemory chatMemory, int maxCount) {
+        try {
+            int loadedCount = 0;
+            // 构造查询条件，起点从1开始，用于排除最新的用户消息
+            QueryWrapper queryWrapper = QueryWrapper.create()
+                    .eq(ChatHistory::getAppId, appId)
+                    .orderBy(ChatHistory::getCreateTime, false)
+                    .limit(1, maxCount);
+            List<ChatHistory> chatHistories = this.list(queryWrapper);
+            // 若无历史会话，则返回0
+            if (CollUtil.isEmpty(chatHistories)) {
+                return 0;
+            }
+            // 反转列表，确保时间正序
+            chatHistories = chatHistories.reversed();
+            // 清理历史缓存，防止重复加载
+            chatMemory.clear();
+            // 遍历列表，将消息添加到会话记忆中
+            for (ChatHistory chatHistory : chatHistories) {
+                if (chatHistory.getMessageType().equals(ChatHistoryMessageTypeEnum.USER.getValue())) {
+                    chatMemory.add(UserMessage.from(chatHistory.getMessage()));
+                    loadedCount++;
+                } else if (chatHistory.getMessageType().equals(ChatHistoryMessageTypeEnum.AI.getValue())) {
+                    chatMemory.add(AiMessage.from(chatHistory.getMessage()));
+                    loadedCount++;
+                }
+            }
+            log.info("加载历史会话到内存，共加载{}条记录", loadedCount);
+            return loadedCount;
+        } catch (Exception e) {
+            log.error("加载历史会话到内存失败：{}", e.getMessage());
+            return 0;
+        }
     }
 
 
