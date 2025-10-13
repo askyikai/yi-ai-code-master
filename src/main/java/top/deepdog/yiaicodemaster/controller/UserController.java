@@ -87,7 +87,7 @@ public class UserController {
      * @param request 请求
      * @return 是否注销成功
      */
-    @GetMapping("logout")
+    @PostMapping("logout")
     public BaseResponse<Boolean> logout(HttpServletRequest request) {
         ThrowUtils.throwIf(request == null, ErrorCode.PARAMS_ERROR);
         boolean result = userService.userLogout(request);
