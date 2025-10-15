@@ -1,5 +1,9 @@
 package top.deepdog.yiaicodemaster.core;
 
+import cn.hutool.json.JSONUtil;
+import dev.langchain4j.model.chat.response.ChatResponse;
+import dev.langchain4j.service.TokenStream;
+import dev.langchain4j.service.tool.ToolExecution;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -8,6 +12,9 @@ import top.deepdog.yiaicodemaster.ai.AiCodeGeneratorService;
 import top.deepdog.yiaicodemaster.ai.AiCodeGeneratorServiceFactory;
 import top.deepdog.yiaicodemaster.ai.model.HtmlCodeResult;
 import top.deepdog.yiaicodemaster.ai.model.MultiFileCodeResult;
+import top.deepdog.yiaicodemaster.ai.model.message.AiResponseMessage;
+import top.deepdog.yiaicodemaster.ai.model.message.ToolExecutedMessage;
+import top.deepdog.yiaicodemaster.ai.model.message.ToolRequestMessage;
 import top.deepdog.yiaicodemaster.core.parser.CodeParserExecutor;
 import top.deepdog.yiaicodemaster.core.saver.CodeFileSaverExecutor;
 import top.deepdog.yiaicodemaster.exception.BusinessException;
@@ -77,8 +84,8 @@ public class AiCodeGeneratorFacade {
                 yield processCodeStream(result, codeGenTypeEnum, appId);
             }
             case VUE_PROJECT -> {
-                Flux<String> result = aiCodeGeneratorService.generateVueProjectCodeStream(appId, userMessage);
-                yield processCodeStream(result, CodeGenTypeEnum.MULTI_FILE, appId);
+                TokenStream tokenStream = aiCodeGeneratorService.generateVueProjectCodeStream(appId, userMessage);
+                yield processTokenStream(tokenStream);
             }
             default -> {
                 String errorMessage = "不支持的生成类型：" + codeGenTypeEnum.getValue();
@@ -86,7 +93,6 @@ public class AiCodeGeneratorFacade {
             }
         };
     }
-
 
 
     /**
@@ -99,7 +105,7 @@ public class AiCodeGeneratorFacade {
     private Flux<String> processCodeStream(Flux<String> codeStream, CodeGenTypeEnum codeGenTypeEnum, Long appId) {
         StringBuilder codeBuilder = new StringBuilder();
         return codeStream.doOnNext(codeBuilder::append)
-                .doOnComplete(()-> {
+                .doOnComplete(() -> {
                     try {
                         String completeCode = codeBuilder.toString();
                         Object parsedResult = CodeParserExecutor.executeParser(completeCode, codeGenTypeEnum);
@@ -109,6 +115,32 @@ public class AiCodeGeneratorFacade {
                         log.error("代码保存失败：{}", e.getMessage());
                     }
                 });
+    }
+
+    /**
+     * 将 TokenStream 转换为 Flux<String>，并传递工具调用
+     *
+     * @param tokenStream token流
+     * @return Flux<String> 流
+     */
+    private Flux<String> processTokenStream(TokenStream tokenStream) {
+        return Flux.create(sink -> {
+            tokenStream.onPartialResponse((String partialResponse) -> {
+                AiResponseMessage aiResponseMessage = new AiResponseMessage(partialResponse);
+                sink.next(JSONUtil.toJsonStr(aiResponseMessage));
+            }).onPartialToolExecutionRequest((index, toolExecutionRequest) -> {
+                ToolRequestMessage toolRequestMessage = new ToolRequestMessage(toolExecutionRequest);
+                sink.next(JSONUtil.toJsonStr(toolRequestMessage));
+            }).onToolExecuted((ToolExecution toolExecution) -> {
+                ToolExecutedMessage toolExecutionMessage = new ToolExecutedMessage(toolExecution);
+                sink.next(JSONUtil.toJsonStr(toolExecutionMessage));
+            }).onCompleteResponse((ChatResponse chatResponse) -> {
+                sink.complete();
+            }).onError((Throwable error) -> {
+                error.printStackTrace();
+                sink.error(error);
+            }).start();
+        });
     }
 
 }
