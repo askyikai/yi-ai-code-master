@@ -161,8 +161,8 @@ onMounted(() => {
     <div class="container">
       <!-- 网站标题和描述 -->
       <div class="hero-section">
-        <h1 class="hero-title">AI Master 应用生成平台</h1>
-        <p class="hero-description">一句话轻松创建网站应用</p>
+        <h1 class="hero-title">擂茶 NoCode AI梦工厂</h1>
+        <p class="hero-description">一句话创建应用</p>
       </div>
 
       <!-- 用户提示词输入框 -->
