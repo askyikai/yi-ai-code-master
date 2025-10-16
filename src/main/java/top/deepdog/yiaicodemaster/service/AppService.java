@@ -3,6 +3,7 @@ package top.deepdog.yiaicodemaster.service;
 import com.mybatisflex.core.query.QueryWrapper;
 import com.mybatisflex.core.service.IService;
 import reactor.core.publisher.Flux;
+import top.deepdog.yiaicodemaster.model.dto.app.AppAddRequest;
 import top.deepdog.yiaicodemaster.model.dto.app.AppQueryRequest;
 import top.deepdog.yiaicodemaster.model.entity.App;
 import top.deepdog.yiaicodemaster.model.entity.User;
@@ -52,4 +53,6 @@ public interface AppService extends IService<App> {
      * @param appUrl 应用URL
      */
     void generateAppScreenshotAsync(Long appId, String appUrl);
+
+    Long createApp(AppAddRequest appAddRequest, User loginUser);
 }
