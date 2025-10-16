@@ -9,10 +9,10 @@ import com.mybatisflex.core.query.QueryWrapper;
 import com.mybatisflex.spring.service.impl.ServiceImpl;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import reactor.core.publisher.Flux;
 import top.deepdog.yiaicodemaster.constant.AppConstant;
 import top.deepdog.yiaicodemaster.core.AiCodeGeneratorFacade;
+import top.deepdog.yiaicodemaster.core.builder.VueProjectBuilder;
 import top.deepdog.yiaicodemaster.core.handler.StreamHandlerExecutor;
 import top.deepdog.yiaicodemaster.exception.BusinessException;
 import top.deepdog.yiaicodemaster.exception.ErrorCode;
@@ -28,6 +28,7 @@ import top.deepdog.yiaicodemaster.model.vo.UserVO;
 import top.deepdog.yiaicodemaster.service.AppService;
 import org.springframework.stereotype.Service;
 import top.deepdog.yiaicodemaster.service.ChatHistoryService;
+import top.deepdog.yiaicodemaster.service.ScreenshotService;
 import top.deepdog.yiaicodemaster.service.UserService;
 
 import java.io.File;
@@ -56,6 +57,10 @@ public class AppServiceImpl extends ServiceImpl<AppMapper, App> implements AppSe
     private ChatHistoryService chatHistoryService;
     @Resource
     private StreamHandlerExecutor streamHandlerExecutor;
+    @Resource
+    private VueProjectBuilder vueProjectBuilder;
+    @Resource
+    private ScreenshotService screenshotService;
 
 
     @Override
@@ -167,22 +172,47 @@ public class AppServiceImpl extends ServiceImpl<AppMapper, App> implements AppSe
         File sourceDir = new File(sourceDirPath);
         ThrowUtils.throwIf(!sourceDir.exists() || !sourceDir.isDirectory(),
                 ErrorCode.NOT_FOUND_ERROR, "应用代码不存在，请先生成应用");
-        // 8. 复制源目录到目标目录
+        // 8. Vue 项目构建
+        CodeGenTypeEnum codeGenTypeEnum = CodeGenTypeEnum.getEnumByValue(codeGenType);
+        if (codeGenTypeEnum == CodeGenTypeEnum.VUE_PROJECT) {
+            boolean buildSuccess = vueProjectBuilder.buildProject(sourceDirPath);
+            ThrowUtils.throwIf(!buildSuccess, ErrorCode.SYSTEM_ERROR, "Vue项目构建失败，请检查代码和依赖");
+            File distDir = new File(sourceDirPath, "dist");
+            ThrowUtils.throwIf(!distDir.exists(), ErrorCode.SYSTEM_ERROR, "Vue项目构建完成，但未生成 dist 目录");
+            sourceDir = distDir;
+            log.info("Vue项目构建完成，将部署 dist 目录：{}", distDir.getAbsolutePath());
+        }
+        // 9. 复制源目录到目标目录
         String deployDirPath = AppConstant.CODE_DEPLOY_ROOT_DIR + File.separator + deployKey;
         try {
             FileUtil.copyContent(sourceDir, new File(deployDirPath), true);
         } catch (Exception e) {
             throw new BusinessException(ErrorCode.SYSTEM_ERROR, "代码部署失败" + e.getMessage());
         }
-        // 9. 更新应用的deployKey和部署时间
+        // 10. 更新应用的deployKey和部署时间
         App updateApp = new App();
         updateApp.setId(appId);
         updateApp.setDeployKey(deployKey);
         updateApp.setDeployedTime(LocalDateTime.now());
         boolean update = this.updateById(updateApp);
         ThrowUtils.throwIf(!update, ErrorCode.OPERATION_ERROR, "更新应用部署信息失败");
-        // 10. 返回可访问的URL
-        return String.format("%s/%s/", AppConstant.CODE_DEPLOY_HOST, deployKey);
+        // 11. 返回可访问的URL
+        String appDeployUrl = String.format("%s/%s/", AppConstant.CODE_DEPLOY_HOST, deployKey);
+        // 12. 异步生成截图并更新应用封面
+        generateAppScreenshotAsync(appId, appDeployUrl);
+        return appDeployUrl;
+    }
+
+    @Override
+    public void generateAppScreenshotAsync(Long appId, String appUrl) {
+        Thread.startVirtualThread(() -> {
+            String screenshotUrl = screenshotService.generateAndUploadScreenshot(appUrl);
+            App updateApp = new App();
+            updateApp.setId(appId);
+            updateApp.setCover(screenshotUrl);
+            boolean update = this.updateById(updateApp);
+            ThrowUtils.throwIf(!update, ErrorCode.OPERATION_ERROR, "更新应用封面失败");
+        });
     }
 
     @Override
