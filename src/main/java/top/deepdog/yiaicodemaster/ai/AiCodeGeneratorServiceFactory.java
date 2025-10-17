@@ -17,6 +17,7 @@ import top.deepdog.yiaicodemaster.exception.BusinessException;
 import top.deepdog.yiaicodemaster.exception.ErrorCode;
 import top.deepdog.yiaicodemaster.model.enums.CodeGenTypeEnum;
 import top.deepdog.yiaicodemaster.service.ChatHistoryService;
+import top.deepdog.yiaicodemaster.utils.SpringContextUtil;
 
 import java.time.Duration;
 
@@ -24,14 +25,8 @@ import java.time.Duration;
 @Configuration
 public class AiCodeGeneratorServiceFactory {
 
-    @Resource
+    @Resource(name = "openAiChatModel")
     private ChatModel chatModel;
-
-    @Resource
-    private StreamingChatModel openAiStreamingChatModel;
-
-    @Resource
-    private StreamingChatModel reasoningStreamingChatModel;
 
     @Resource
     private RedisChatMemoryStore redisChatMemoryStore;
@@ -105,13 +100,22 @@ public class AiCodeGeneratorServiceFactory {
         // 从数据库加载历史会话到会话记忆中
         chatHistoryService.loadChatHistoryToMemory(appId, chatMemory, 20);
         return switch (codeGenType) {
-            case HTML, MULTI_FILE -> AiServices
+            case HTML, MULTI_FILE -> {
+                // 使用多例模式的StreamingChatModel解决并发问题
+                StreamingChatModel openAiStreamingChatModel = SpringContextUtil
+                        .getBean("streamingChatModelPrototype", StreamingChatModel.class);
+                yield AiServices
                     .builder(AiCodeGeneratorService.class)
                     .chatModel(chatModel)
                     .streamingChatModel(openAiStreamingChatModel)
                     .chatMemory(chatMemory)
                     .build();
-            case VUE_PROJECT -> AiServices
+            }
+            case VUE_PROJECT -> {
+                // 使用多例模式的StreamingChatModel解决并发问题
+                StreamingChatModel reasoningStreamingChatModel = SpringContextUtil
+                        .getBean("reasoningStreamingChatModelPrototype", StreamingChatModel.class);
+                yield  AiServices
                     .builder(AiCodeGeneratorService.class)
                     .streamingChatModel(reasoningStreamingChatModel)
                     .chatMemoryProvider(memoryId -> chatMemory)
@@ -122,6 +126,7 @@ public class AiCodeGeneratorServiceFactory {
                                     toolExecutionRequest,
                                     "Error: there is no tool called" + toolExecutionRequest.name()))
                     .build();
+            }
             default ->
                     throw new BusinessException(ErrorCode.PARAMS_ERROR, "不支持的代码生成类型：" + codeGenType.getValue());
         };
