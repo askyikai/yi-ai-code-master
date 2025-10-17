@@ -9,6 +9,7 @@ import com.mybatisflex.core.query.QueryWrapper;
 import com.mybatisflex.spring.service.impl.ServiceImpl;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import reactor.core.publisher.Flux;
 import top.deepdog.yiaicodemaster.ai.AiCodeGenTypeRoutingService;
 import top.deepdog.yiaicodemaster.ai.AiCodeGenTypeRoutingServiceFactory;
@@ -66,6 +67,10 @@ public class AppServiceImpl extends ServiceImpl<AppMapper, App> implements AppSe
     private ScreenshotService screenshotService;
     @Resource
     private AiCodeGenTypeRoutingServiceFactory aiCodeGenTypeRoutingServiceFactory;
+
+    @Value("${code.deploy-host:http://localhost}")
+    private String deployHost;
+
 
     @Override
     public Long createApp(AppAddRequest appAddRequest, User loginUser) {
@@ -225,7 +230,7 @@ public class AppServiceImpl extends ServiceImpl<AppMapper, App> implements AppSe
         boolean update = this.updateById(updateApp);
         ThrowUtils.throwIf(!update, ErrorCode.OPERATION_ERROR, "更新应用部署信息失败");
         // 11. 返回可访问的URL
-        String appDeployUrl = String.format("%s/%s/", AppConstant.CODE_DEPLOY_HOST, deployKey);
+        String appDeployUrl = String.format("%s/%s/", deployHost, deployKey);
         // 12. 异步生成截图并更新应用封面
         generateAppScreenshotAsync(appId, appDeployUrl);
         return appDeployUrl;
