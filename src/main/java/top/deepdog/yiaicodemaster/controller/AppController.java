@@ -28,6 +28,8 @@ import top.deepdog.yiaicodemaster.model.entity.App;
 import top.deepdog.yiaicodemaster.model.entity.User;
 import top.deepdog.yiaicodemaster.model.enums.CodeGenTypeEnum;
 import top.deepdog.yiaicodemaster.model.vo.AppVO;
+import top.deepdog.yiaicodemaster.ratelimiter.annotation.RateLimit;
+import top.deepdog.yiaicodemaster.ratelimiter.enums.RateLimitType;
 import top.deepdog.yiaicodemaster.service.AppService;
 import top.deepdog.yiaicodemaster.service.ProjectDownloadService;
 import top.deepdog.yiaicodemaster.service.UserService;
@@ -61,6 +63,7 @@ public class AppController {
      * @return 生成的代码
      */
     @GetMapping(value = "/chat/gen/code", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    @RateLimit(limitType = RateLimitType.USER, rate = 5, rateInterval = 60, message = "AI请求频繁，请稍后重试")
     public Flux<ServerSentEvent<String>> chatToGenCode(@RequestParam Long appId,
                                                        @RequestParam String message,
                                                        HttpServletRequest request) {
