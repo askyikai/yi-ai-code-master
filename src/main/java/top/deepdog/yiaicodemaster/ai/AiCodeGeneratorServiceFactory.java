@@ -12,7 +12,7 @@ import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import top.deepdog.yiaicodemaster.ai.tools.FileWriteTool;
+import top.deepdog.yiaicodemaster.ai.tools.*;
 import top.deepdog.yiaicodemaster.exception.BusinessException;
 import top.deepdog.yiaicodemaster.exception.ErrorCode;
 import top.deepdog.yiaicodemaster.model.enums.CodeGenTypeEnum;
@@ -33,12 +33,14 @@ public class AiCodeGeneratorServiceFactory {
     @Resource
     private StreamingChatModel reasoningStreamingChatModel;
 
-
     @Resource
     private RedisChatMemoryStore redisChatMemoryStore;
 
     @Resource
     private ChatHistoryService chatHistoryService;
+
+    @Resource
+    private ToolManager toolManager;
 
     /**
      * AI服务实例缓存
@@ -65,7 +67,7 @@ public class AiCodeGeneratorServiceFactory {
     /**
      * 获取一个AI服务实例(带缓存)new
      *
-     * @param appId 应用ID
+     * @param appId       应用ID
      * @param codeGenType 码生成类型
      * @return AI服务实例
      */
@@ -77,7 +79,7 @@ public class AiCodeGeneratorServiceFactory {
     /**
      * 构建缓存Key
      *
-     * @param appId 应用ID
+     * @param appId       应用ID
      * @param codeGenType 代码生成类型
      * @return 缓存Key
      */
@@ -113,7 +115,7 @@ public class AiCodeGeneratorServiceFactory {
                     .builder(AiCodeGeneratorService.class)
                     .streamingChatModel(reasoningStreamingChatModel)
                     .chatMemoryProvider(memoryId -> chatMemory)
-                    .tools(new FileWriteTool())
+                    .tools(toolManager.getAllTools())
                     // 幻觉工具名称策略：如果找不到工具，则告诉AI
                     .hallucinatedToolNameStrategy(toolExecutionRequest ->
                             ToolExecutionResultMessage.from(

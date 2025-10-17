@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-@ConfigurationProperties(prefix = "langchain4j.open-ai.chat-model")
+@ConfigurationProperties(prefix = "langchain4j.open-ai.reasoner-chat-model")
 @Data
 public class ReasoningStreamingChatModelConfig {
 
@@ -16,14 +16,16 @@ public class ReasoningStreamingChatModelConfig {
 
     private String apiKey;
 
+    private String modelName;
+
+    private int maxTokens;
+
     /**
      * 推理流式模型（用于 Vue 项目生成，工具调用）
      */
     @Bean
     public StreamingChatModel reasoningStreamingChatModel() {
         // 用于测试环境（生产环境改成 deepseek-reasoner，32768）
-        final String modelName = "deepseek-reasoner";
-        final int maxTokens = 32768;
         return OpenAiStreamingChatModel.builder()
                 .baseUrl(baseUrl)
                 .apiKey(apiKey)
