@@ -12,6 +12,7 @@ import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import top.deepdog.yiaicodemaster.ai.guardrail.PromptSafetyInputGuardrail;
 import top.deepdog.yiaicodemaster.ai.tools.*;
 import top.deepdog.yiaicodemaster.exception.BusinessException;
 import top.deepdog.yiaicodemaster.exception.ErrorCode;
@@ -105,27 +106,31 @@ public class AiCodeGeneratorServiceFactory {
                 StreamingChatModel openAiStreamingChatModel = SpringContextUtil
                         .getBean("streamingChatModelPrototype", StreamingChatModel.class);
                 yield AiServices
-                    .builder(AiCodeGeneratorService.class)
-                    .chatModel(chatModel)
-                    .streamingChatModel(openAiStreamingChatModel)
-                    .chatMemory(chatMemory)
-                    .build();
+                        .builder(AiCodeGeneratorService.class)
+                        .chatModel(chatModel)
+                        .streamingChatModel(openAiStreamingChatModel)
+                        .chatMemory(chatMemory)
+                        // 添加输入护轨
+                        .inputGuardrails(new PromptSafetyInputGuardrail())
+                        .build();
             }
             case VUE_PROJECT -> {
                 // 使用多例模式的StreamingChatModel解决并发问题
                 StreamingChatModel reasoningStreamingChatModel = SpringContextUtil
                         .getBean("reasoningStreamingChatModelPrototype", StreamingChatModel.class);
-                yield  AiServices
-                    .builder(AiCodeGeneratorService.class)
-                    .streamingChatModel(reasoningStreamingChatModel)
-                    .chatMemoryProvider(memoryId -> chatMemory)
-                    .tools(toolManager.getAllTools())
-                    // 幻觉工具名称策略：如果找不到工具，则告诉AI
-                    .hallucinatedToolNameStrategy(toolExecutionRequest ->
-                            ToolExecutionResultMessage.from(
-                                    toolExecutionRequest,
-                                    "Error: there is no tool called" + toolExecutionRequest.name()))
-                    .build();
+                yield AiServices
+                        .builder(AiCodeGeneratorService.class)
+                        .streamingChatModel(reasoningStreamingChatModel)
+                        .chatMemoryProvider(memoryId -> chatMemory)
+                        .tools(toolManager.getAllTools())
+                        // 幻觉工具名称策略：如果找不到工具，则告诉AI
+                        .hallucinatedToolNameStrategy(toolExecutionRequest ->
+                                ToolExecutionResultMessage.from(
+                                        toolExecutionRequest,
+                                        "Error: there is no tool called" + toolExecutionRequest.name()))
+                        // 添加输入护轨
+                        .inputGuardrails(new PromptSafetyInputGuardrail())
+                        .build();
             }
             default ->
                     throw new BusinessException(ErrorCode.PARAMS_ERROR, "不支持的代码生成类型：" + codeGenType.getValue());
