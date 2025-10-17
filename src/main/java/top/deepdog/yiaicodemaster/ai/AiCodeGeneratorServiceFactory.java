@@ -13,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import top.deepdog.yiaicodemaster.ai.guardrail.PromptSafetyInputGuardrail;
+import top.deepdog.yiaicodemaster.ai.guardrail.RetryOutputGuardrail;
 import top.deepdog.yiaicodemaster.ai.tools.*;
 import top.deepdog.yiaicodemaster.exception.BusinessException;
 import top.deepdog.yiaicodemaster.exception.ErrorCode;
@@ -110,8 +111,11 @@ public class AiCodeGeneratorServiceFactory {
                         .chatModel(chatModel)
                         .streamingChatModel(openAiStreamingChatModel)
                         .chatMemory(chatMemory)
+                        .maxSequentialToolsInvocations(30)
                         // 添加输入护轨
                         .inputGuardrails(new PromptSafetyInputGuardrail())
+                        // 添加输出护轨，但会影响流式输出
+//                        .outputGuardrails(new RetryOutputGuardrail())
                         .build();
             }
             case VUE_PROJECT -> {
@@ -128,8 +132,11 @@ public class AiCodeGeneratorServiceFactory {
                                 ToolExecutionResultMessage.from(
                                         toolExecutionRequest,
                                         "Error: there is no tool called" + toolExecutionRequest.name()))
+                        .maxSequentialToolsInvocations(30)
                         // 添加输入护轨
                         .inputGuardrails(new PromptSafetyInputGuardrail())
+                        // 添加输出护轨，但会影响流式输出
+//                        .outputGuardrails(new RetryOutputGuardrail())
                         .build();
             }
             default ->

@@ -176,7 +176,7 @@
             <div class="placeholder-icon">🌐</div>
             <p>网站文件生成完成后将在这里展示</p>
           </div>
-          <div v-else-if="isGenerating" class="preview-loading">
+          <div v-else-if="isGenerating" class="preview-loa ding">
             <a-spin size="large" />
             <p>正在生成网站...</p>
           </div>
