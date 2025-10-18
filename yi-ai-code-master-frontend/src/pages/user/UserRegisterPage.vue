@@ -25,6 +25,9 @@
       >
         <a-input-password v-model:value="formState.checkPassword" placeholder="请确认密码" />
       </a-form-item>
+      <a-form-item name="userAuth" :rules="[{ required: true, message: '请输入授权码' }]">
+        <a-input v-model:value="formState.userAuth" placeholder="请输入授权码" />
+      </a-form-item>
       <div class="tips">
         已有账号？
         <RouterLink to="/user/login">去登录</RouterLink>
@@ -48,6 +51,7 @@ const formState = reactive<API.UserRegisterRequest>({
   userAccount: '',
   userPassword: '',
   checkPassword: '',
+  userAuth: ''
 })
 
 /**

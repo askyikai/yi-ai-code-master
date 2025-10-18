@@ -6,6 +6,7 @@ import cn.hutool.core.util.StrUtil;
 import com.mybatisflex.core.query.QueryWrapper;
 import com.mybatisflex.spring.service.impl.ServiceImpl;
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.DigestUtils;
 import top.deepdog.yiaicodemaster.exception.ErrorCode;
 import top.deepdog.yiaicodemaster.exception.ThrowUtils;
@@ -32,14 +33,23 @@ import static top.deepdog.yiaicodemaster.constant.UserConstant.USER_LOGIN_STATE;
 @Service
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements UserService {
 
+    @Value("${custom.key}")
+    private String userAuthKey;
+
+    @Value("${custom.adminKey}")
+    private String userAuthAdminKey;
+
+    @Value("${custom.teaUser}")
+    private String teaUser;
 
     @Override
-    public long userRegister(String userAccount, String userPassword, String checkPassword) {
+    public long userRegister(String userAccount, String userPassword, String checkPassword, String userAuth) {
         // 1. 校验
-        ThrowUtils.throwIf(StrUtil.hasBlank(userAccount, userPassword, checkPassword), ErrorCode.PARAMS_ERROR, "参数为空");
+        ThrowUtils.throwIf(StrUtil.hasBlank(userAccount, userPassword, checkPassword, userAuth), ErrorCode.PARAMS_ERROR, "参数为空");
         ThrowUtils.throwIf(userAccount.length() < 4, ErrorCode.PARAMS_ERROR, "用户账号过短");
         ThrowUtils.throwIf(userPassword.length() < 8 || checkPassword.length() < 8, ErrorCode.PARAMS_ERROR, "用户密码过短");
         ThrowUtils.throwIf(!userPassword.equals(checkPassword), ErrorCode.PARAMS_ERROR, "两次输入的密码不一致");
+        ThrowUtils.throwIf(!userAuth.equals(userAuthKey) && !userAuth.equals(userAuthAdminKey), ErrorCode.PARAMS_ERROR, "授权码错误，请联系管理员获取");
         QueryWrapper queryWrapper = new QueryWrapper();
         queryWrapper.eq(User::getUserAccount, userAccount);
         ThrowUtils.throwIf(this.mapper.selectCountByQuery(queryWrapper) > 0, ErrorCode.PARAMS_ERROR, "账号重复");
@@ -50,7 +60,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         user.setUserAccount(userAccount);
         user.setUserPassword(encryptPassword);
         user.setUserName(userAccount);
-        user.setUserRole(UserRoleEnum.USER.getValue());
+        if (userAuth.equals(userAuthAdminKey)) {
+            user.setUserRole(UserRoleEnum.ADMIN.getValue());
+        } else {
+            user.setUserRole(UserRoleEnum.USER.getValue());
+        }
+        user.setUserAvatar(teaUser);
         ThrowUtils.throwIf(!this.save(user), ErrorCode.SYSTEM_ERROR, "注册失败，数据库错误");
         // 3. 返回用户
         return user.getId();

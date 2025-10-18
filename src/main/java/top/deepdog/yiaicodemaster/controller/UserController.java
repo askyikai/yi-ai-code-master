@@ -52,7 +52,8 @@ public class UserController {
         return ResultUtils.success(userService.userRegister(
                 userRegisterRequest.getUserAccount(),
                 userRegisterRequest.getUserPassword(),
-                userRegisterRequest.getCheckPassword()));
+                userRegisterRequest.getCheckPassword(),
+                userRegisterRequest.getUserAuth()));
     }
 
     /**

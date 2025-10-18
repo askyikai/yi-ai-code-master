@@ -23,9 +23,10 @@ public interface UserService extends IService<User> {
      * @param userAccount   用户账号
      * @param userPassword  用户密码
      * @param checkPassword 确认密码
+     * @param userAuth      用户权限(根据授权码判定)
      * @return 新用户id
      */
-    long userRegister(String userAccount, String userPassword, String checkPassword);
+    long userRegister(String userAccount, String userPassword, String checkPassword, String userAuth);
 
     /**
      * 获取加密密码
@@ -79,6 +80,7 @@ public interface UserService extends IService<User> {
 
     /**
      * 批量用户信息脱敏
+     *
      * @param userList 原始用户信息列表
      * @return 脱敏后的用户信息列表
      */
@@ -86,6 +88,7 @@ public interface UserService extends IService<User> {
 
     /**
      * 获取查询条件
+     *
      * @param userQueryRequest 查询条件
      * @return 查询条件
      */

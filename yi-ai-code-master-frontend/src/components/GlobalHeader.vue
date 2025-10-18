@@ -84,7 +84,7 @@ const originItems = [
   },
   {
     key: 'others',
-    label: h('a', { href: 'https://www.deepdog.top', target: '_blank' }, '关于我'),
+    label: h('a', { href: 'http://www.deepdog.top', target: '_blank' }, '关于我'),
     title: '关于我',
   },
 ]
