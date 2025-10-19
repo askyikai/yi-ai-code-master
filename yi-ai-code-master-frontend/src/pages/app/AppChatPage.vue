@@ -178,7 +178,7 @@
           </div>
           <div v-else-if="isGenerating" class="preview-loa ding">
             <a-spin size="large" />
-            <p>正在生成网站...</p>
+            <p>后台正在生成网站...请耐心等待</p>
           </div>
           <iframe
               v-else

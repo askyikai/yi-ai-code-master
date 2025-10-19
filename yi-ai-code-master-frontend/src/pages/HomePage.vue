@@ -162,7 +162,7 @@ onMounted(() => {
       <!-- 网站标题和描述 -->
       <div class="hero-section">
         <h1 class="hero-title">擂茶 NoCode AI梦工厂</h1>
-        <p class="hero-description">一句话创建应用</p>
+        <p class="hero-description">一句话 Build Your Dream</p>
       </div>
 
       <!-- 用户提示词输入框 -->
@@ -225,7 +225,7 @@ onMounted(() => {
 
       <!-- 我的作品 -->
       <div class="section">
-        <h2 class="section-title">我的作品</h2>
+        <h2 class="section-title">我的杰作</h2>
         <div class="app-grid">
           <AppCard
             v-for="app in myApps"
@@ -249,7 +249,7 @@ onMounted(() => {
 
       <!-- 精选案例 -->
       <div class="section">
-        <h2 class="section-title">精选案例</h2>
+        <h2 class="section-title">精选佳作</h2>
         <div class="featured-grid">
           <AppCard
             v-for="app in featuredApps"
@@ -413,7 +413,7 @@ onMounted(() => {
   font-weight: 700;
   margin: 0 0 20px;
   line-height: 1.2;
-  background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 50%, #10b981 100%);
+  background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 50%, #dd0c6b 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
