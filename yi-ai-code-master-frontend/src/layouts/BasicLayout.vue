@@ -9,6 +9,14 @@
     <!-- 底部版权信息 -->
     <GlobalFooter />
   </a-layout>
+  <a-config-provider
+    :theme="{
+      token: {
+        colorPrimary: '#00b96b',
+      },
+    }"
+  >
+  </a-config-provider>
 </template>
 
 <script setup lang="ts">

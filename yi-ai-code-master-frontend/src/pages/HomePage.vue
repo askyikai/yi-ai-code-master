@@ -161,8 +161,8 @@ onMounted(() => {
     <div class="container">
       <!-- 网站标题和描述 -->
       <div class="hero-section">
-        <h1 class="hero-title">擂茶 NoCode AI梦工厂</h1>
-        <p class="hero-description">一句话 Build Your Dream</p>
+        <h1 class="hero-title">NoCode AI梦工厂</h1>
+        <p class="hero-description">一言 Build Your Dream</p>
       </div>
 
       <!-- 用户提示词输入框 -->
@@ -189,62 +189,65 @@ onMounted(() => {
           type="default"
           @click="
             setPrompt(
-              '创建一个现代化的个人博客网站，包含文章列表、详情页、分类标签、搜索功能、评论系统和个人简介页面。采用简洁的设计风格，支持响应式布局，文章支持Markdown格式，首页展示最新文章和热门推荐。',
+              '请生成一份极简风格的A4纸大小简历，包含以下模块：\n' +
+                '1. 个人信息：姓名（擂茶）、职业（程序员），联系方式（邮箱：askyikai@qq.com；个人网站：www.deepdog.top），姓名需突出显示，其他信息简洁排列。\n' +
+                '2. 教育经历：安徽工业大学，硕士，2024~2027。\n' +
+                '3. 工作经历：甲骨文公司，后端开发，2022~2023。\n' +
+                '4. 项目经历：项目名称（NoCode AI 梦工厂），括号内补充核心定位（AI Agent 零代码平台）。\n' +
+                '5. 专业技能：- 熟练掌握 Spring Boot  - 熟悉 MySQL 库表设计与索引优化 - 熟悉 LangChain4j 框架。',
             )
           "
-          >个人博客网站</a-button
-        >
+          >简历
+        </a-button>
+        <a-button
+          type="default"
+          @click="setPrompt('生成一个名为Essential的英文版极简主义风格的2025年设计作品网站')"
+          >作品展示网站
+        </a-button>
         <a-button
           type="default"
           @click="
             setPrompt(
-              '设计一个专业的企业官网，包含公司介绍、产品服务展示、新闻资讯、联系我们等页面。采用商务风格的设计，包含轮播图、产品展示卡片、团队介绍、客户案例展示，支持多语言切换和在线客服功能。',
+              '创建简约个人博客网站，包含文章列表、详情页和个人简介页面。支持响应式布局，首页展示2025年最新文章和热门推荐。',
             )
           "
-          >企业官网</a-button
-        >
+          >个人博客
+        </a-button>
         <a-button
           type="default"
           @click="
             setPrompt(
-              '构建一个功能完整的在线商城，包含商品展示、购物车、用户注册登录、订单管理、支付结算等功能。设计现代化的商品卡片布局，支持商品搜索筛选、用户评价、优惠券系统和会员积分功能。',
+              '请生成一个简洁现代化的网页，面向外国游客，帮助他们规划2025中国旅行。网站包括两大模块：\n' +
+                '一是“城市与景点指南”，展示如北京、上海、合肥的简介及3–5个核心景点，每个景点配一句极简介绍，采用卡片或折叠列表呈现；\n' +
+                '二是“实用生存指南”，涵盖支付、交通、住宿、网络、语言等方面的常见问题与解决方案，如移动支付使用、地铁购票和翻译App推荐，强调操作性和信息清晰。页面需清爽、导航直观，适合初次来华游客快速上手。',
             )
           "
-          >在线商城</a-button
-        >
+          >中国旅游指南
+        </a-button>
         <a-button
           type="default"
           @click="
             setPrompt(
-              '制作一个精美的作品展示网站，适合设计师、摄影师、艺术家等创作者。包含作品画廊、项目详情页、个人简历、联系方式等模块。采用瀑布流或网格布局展示作品，支持图片放大预览和作品分类筛选。',
+              '设计一个2025年专业的企业官网，包含公司介绍、产品服务展示、新闻资讯、联系我们等页面。采用商务风格的设计，包含轮播图、产品展示卡片、团队介绍。',
             )
           "
-          >作品展示网站</a-button
-        >
-      </div>
-
-      <!-- 我的作品 -->
-      <div class="section">
-        <h2 class="section-title">我的杰作</h2>
-        <div class="app-grid">
-          <AppCard
-            v-for="app in myApps"
-            :key="app.id"
-            :app="app"
-            @view-chat="viewChat"
-            @view-work="viewWork"
-          />
-        </div>
-        <div class="pagination-wrapper">
-          <a-pagination
-            v-model:current="myAppsPage.current"
-            v-model:page-size="myAppsPage.pageSize"
-            :total="myAppsPage.total"
-            :show-size-changer="false"
-            :show-total="(total: number) => `共 ${total} 个应用`"
-            @change="loadMyApps"
-          />
-        </div>
+          >企业官网
+        </a-button>
+        <a-button
+          type="default"
+          @click="
+            setPrompt(
+              '开发名为“擂茶贪吃蛇”的贪吃蛇网页小游戏：\n' +
+                '1. 风格简洁精美，含茶元素\n' +
+                '2. 方向键控制，吃食物得100分、变长，撞边界/自身结束\n' +
+                '3. 初始速度200ms，每吃1个食物加速（最低50ms）\n' +
+                '4. 蛇身随得分按红→橙→黄→绿→蓝→靛→紫循环变色\n' +
+                '5. 展示一个排行榜按钮，点击打开展示状元、榜眼、探花三甲分数，破纪录时可填姓名更新\n' +
+                '6. 游戏画面不显示滚动条，响应式设计，适配多设备。',
+            )
+          "
+          >贪吃蛇
+        </a-button>
       </div>
 
       <!-- 精选案例 -->
@@ -271,6 +274,30 @@ onMounted(() => {
           />
         </div>
       </div>
+
+      <!-- 我的作品 -->
+      <div class="section">
+        <h2 class="section-title">我的杰作</h2>
+        <div class="app-grid">
+          <AppCard
+            v-for="app in myApps"
+            :key="app.id"
+            :app="app"
+            @view-chat="viewChat"
+            @view-work="viewWork"
+          />
+        </div>
+        <div class="pagination-wrapper">
+          <a-pagination
+            v-model:current="myAppsPage.current"
+            v-model:page-size="myAppsPage.pageSize"
+            :total="myAppsPage.total"
+            :show-size-changer="false"
+            :show-total="(total: number) => `共 ${total} 个应用`"
+            @change="loadMyApps"
+          />
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -282,10 +309,10 @@ onMounted(() => {
   padding: 0;
   min-height: 100vh;
   background:
-    linear-gradient(180deg, #f8fafc 0%, #f1f5f9 8%, #e2e8f0 20%, #cbd5e1 100%),
-    radial-gradient(circle at 20% 80%, rgba(59, 130, 246, 0.15) 0%, transparent 50%),
-    radial-gradient(circle at 80% 20%, rgba(139, 92, 246, 0.12) 0%, transparent 50%),
-    radial-gradient(circle at 40% 40%, rgba(16, 185, 129, 0.08) 0%, transparent 50%);
+    linear-gradient(180deg, #e6fae7 0%, #e9f8e9 8%, #f3fff6 20%, #def4df 100%),
+    radial-gradient(circle at 20% 80%, rgb(243, 255, 246) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgb(243, 255, 246) 0%, transparent 50%),
+    radial-gradient(circle at 40% 40%, rgb(255, 255, 255) 0%, transparent 50%);
   position: relative;
   overflow: hidden;
 }
@@ -299,10 +326,10 @@ onMounted(() => {
   right: 0;
   bottom: 0;
   background-image:
-    linear-gradient(rgba(59, 130, 246, 0.05) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(59, 130, 246, 0.05) 1px, transparent 1px),
-    linear-gradient(rgba(139, 92, 246, 0.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(139, 92, 246, 0.04) 1px, transparent 1px);
+    linear-gradient(rgb(189, 241, 190) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(213, 246, 213) 1px, transparent 1px),
+    linear-gradient(rgb(210, 243, 210) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(203, 241, 204) 1px, transparent 1px);
   background-size:
     100px 100px,
     100px 100px,
@@ -323,12 +350,12 @@ onMounted(() => {
   background:
     radial-gradient(
       600px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
-      rgba(59, 130, 246, 0.08) 0%,
-      rgba(139, 92, 246, 0.06) 40%,
+      rgb(232, 243, 233) 0%,
+      rgb(237, 250, 237) 40%,
       transparent 80%
     ),
-    linear-gradient(45deg, transparent 30%, rgba(59, 130, 246, 0.04) 50%, transparent 70%),
-    linear-gradient(-45deg, transparent 30%, rgba(139, 92, 246, 0.04) 50%, transparent 70%);
+    linear-gradient(45deg, transparent 30%, rgb(243, 255, 246) 50%, transparent 70%),
+    linear-gradient(-45deg, transparent 30%, rgb(232, 255, 236) 50%, transparent 70%);
   pointer-events: none;
   animation: lightPulse 8s ease-in-out infinite alternate;
 }
@@ -382,7 +409,7 @@ onMounted(() => {
   right: 0;
   bottom: 0;
   background:
-    radial-gradient(ellipse 800px 400px at center, rgba(59, 130, 246, 0.12) 0%, transparent 70%),
+    radial-gradient(ellipse 800px 400px at center, rgb(197, 241, 199) 0%, transparent 70%),
     linear-gradient(45deg, transparent 30%, rgba(139, 92, 246, 0.05) 50%, transparent 70%),
     linear-gradient(-45deg, transparent 30%, rgba(16, 185, 129, 0.04) 50%, transparent 70%);
   animation: heroGlow 10s ease-in-out infinite alternate;
@@ -413,7 +440,7 @@ onMounted(() => {
   font-weight: 700;
   margin: 0 0 20px;
   line-height: 1.2;
-  background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 50%, #dd0c6b 100%);
+  background: linear-gradient(135deg, #81fa83 0%, #31c834 50%, #07bf0a 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -513,10 +540,10 @@ onMounted(() => {
 
 .quick-actions .ant-btn:hover {
   background: rgba(255, 255, 255, 0.9);
-  border-color: rgba(59, 130, 246, 0.4);
-  color: #3b82f6;
+  border-color: rgb(243, 255, 246);
+  color: #00b96b;
   transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(59, 130, 246, 0.2);
+  box-shadow: 0 8px 25px rgb(168, 239, 169);
 }
 
 /* 区域标题 */
