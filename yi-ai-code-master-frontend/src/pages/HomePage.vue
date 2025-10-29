@@ -161,8 +161,8 @@ onMounted(() => {
     <div class="container">
       <!-- 网站标题和描述 -->
       <div class="hero-section">
-        <h1 class="hero-title">NoCode AI梦工厂</h1>
-        <p class="hero-description">一言 Build Your Dream</p>
+        <h1 class="hero-title">NoCode DreamWorks</h1>
+        <p class="hero-description">Shape your ideas into apps that work your way</p>
       </div>
 
       <!-- 用户提示词输入框 -->
