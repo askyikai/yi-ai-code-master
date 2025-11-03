@@ -84,6 +84,11 @@ const originItems = [
   },
   {
     key: 'others',
+    label: h('a', { href: 'http://www.teafly.top/', target: '_blank' }, 'Blog'),
+    title: 'Blog',
+  },
+  {
+    key: 'others',
     label: h('a', { href: 'http://www.deepdog.top/dist/', target: '_blank' }, '关于我'),
     title: '关于我',
   },
